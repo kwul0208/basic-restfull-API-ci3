@@ -10,7 +10,7 @@ class Api extends RestController
     public function __construct()
     {
         parent::__construct();
-        $this->load->model('ProductModel');
+        // $this->load->model('ProductModel');
         $this->load->model('UserModel');
     }
 
