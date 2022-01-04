@@ -12,10 +12,14 @@ class Api extends RestController
         parent::__construct();
         // $this->load->model('ProductModel');
         $this->load->model('UserModel');
+        // $this->load->rest('rest');
+        // $this->config->set_item('rest_enable_keys', true);
     }
 
     public function index_get()
     {
+        $this->config->set_item('rest_auth', 'basic');
+
         $id = $this->get('id');
 
         if ($id === null) {
@@ -26,6 +30,8 @@ class Api extends RestController
 
 
         $this->response([
+            'ax' => $this->config->item('rest_enable_keys'),
+            'x' => $this->config->item('rest_auth'),
             'message' => 'success',
             'data' => $product,
         ], RestController::HTTP_OK);
