@@ -48,4 +48,9 @@ class ProductModel extends CI_Model
         $this->db->update('product', $data, ['id' => $id]);
         return $this->db->affected_rows();
     }
+
+    public function getByIdUser($id)
+    {
+        return $this->db->get_where('product', ['id_user' => $id])->result_array();
+    }
 }

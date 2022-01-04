@@ -4,37 +4,52 @@ defined('BASEPATH') or exit('No direct script access allowed');
 require './vendor/autoload.php';
 
 use chriskacerguis\RestServer\RestController;
+use Firebase\JWT\JWT;
+use Firebase\JWT\Key;
 
 class Api extends RestController
 {
     public function __construct()
     {
         parent::__construct();
-        // $this->load->model('ProductModel');
         $this->load->model('UserModel');
-        // $this->load->rest('rest');
-        // $this->config->set_item('rest_enable_keys', true);
     }
 
     public function index_get()
     {
-        $this->config->set_item('rest_auth', 'basic');
+        $secret_key = 'sulit';
 
-        $id = $this->get('id');
+        $authHeader = $this->input->get_request_header('Authorization');
+        $arr = explode(" ", $authHeader);
+        $jwt = isset($arr[1]) ? $arr[1] : '';
 
-        if ($id === null) {
-            $product = $this->ProductModel->getAll();
+        if ($jwt) {
+            try {
+                $decode = JWT::decode($jwt, new Key($secret_key, 'HS256'));
+                $id = $this->get('id');
+
+                if ($id === null) {
+                    $product = $this->ProductModel->getAll();
+                } else {
+                    $product = $this->ProductModel->getById($id);
+                }
+
+                $this->response([
+                    'message' => 'success',
+                    'data' => $product,
+                ], RestController::HTTP_OK);
+            } catch (\Throwable $th) {
+                echo 'fail';
+            }
         } else {
-            $product = $this->ProductModel->getById($id);
+            $result = [
+                'code' => 401,
+                'message' => 'Access denied',
+                'data' => 'null'
+            ];
+
+            $this->response($result, RestController::HTTP_UNAUTHORIZED);
         }
-
-
-        $this->response([
-            'ax' => $this->config->item('rest_enable_keys'),
-            'x' => $this->config->item('rest_auth'),
-            'message' => 'success',
-            'data' => $product,
-        ], RestController::HTTP_OK);
     }
 
     public function index_post()
